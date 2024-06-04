@@ -85,6 +85,26 @@ class CacheTest {
         assertEquals(records, cache.size(), "Size changed");
     }
 
+    void testRemove(int records) {
+        final RecordData data = generateData(records);
+        final Cache cache = new Cache();
+        IntStream.range(0, records).forEach(i -> cache.addRecord(new Cache.CacheRecord(data.accounts[i], data.names[i], data.values[i])));
+        for (int i = 0; i < records; ++i) {
+            cache.removeRecord(cache.getRecordByAccount(data.accounts[i]));
+        }
+        assertEquals(0, cache.size(), "Not all records removed");
+        for (int i = 0; i < records; ++i) {
+            final Cache.CacheRecord[] recordArray = {
+                    cache.getRecordByAccount(data.accounts[i]),
+                    cache.getRecordByName(data.names[i]),
+                    cache.getRecordByValue(data.values[i])};
+            for (final Cache.CacheRecord record : recordArray) {
+                assertNull(record, "Dangling record");
+            }
+        }
+    }
+
+
     @Test
     @DisplayName("Create record with random data")
     void testRecord() {
@@ -130,5 +150,17 @@ class CacheTest {
     @DisplayName("Update many records")
     void test_updateMany() {
         testUpdate(1000);
+    }
+
+    @Test
+    @DisplayName("Remove one record")
+    void test_remove() {
+        testRemove(1);
+    }
+
+    @Test
+    @DisplayName("Remove many records")
+    void test_removeMany() {
+        testRemove(1000);
     }
 }
