@@ -7,8 +7,17 @@ import java.util.TreeMap;
 /**
  * In memory cache.
  *
+ * Allows effectively store, find, update records of the following format:
+ * <code>
+ * {
+ *     "account": "234678", //long
+ *     "name": "Иванов Иван Иванович", //string
+ *     "value": "2035.34" //double
+ * }
+ * </code>
  *
- * All operations on cache have <var>log(n)</var> time cost, except {@link #size()}, which has constant time complexity.
+ * All operations on cache have <var>log(n)</var> time cost,
+ * except {@link #size()}, which has constant time complexity.
  */
 public class Cache {
     public static class CacheRecord {
