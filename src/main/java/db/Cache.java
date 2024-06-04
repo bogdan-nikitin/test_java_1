@@ -11,6 +11,28 @@ import java.util.TreeMap;
  * All operations on cache have <var>log(n)</var> time cost, except {@link #size()}, which has constant time complexity.
  */
 public class Cache {
+    public static class CacheRecord {
+        private Long account;
+        private String name;
+        private Double value;
+        public CacheRecord(final Long account, final String name, final Double value) {
+            this.account = account;
+            this.name = name;
+            this.value = value;
+        }
+
+        public Double getValue() {
+            return value;
+        }
+
+        public Long getAccount() {
+            return account;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
     private final Map<Long, CacheRecord> accountMap = new TreeMap<>();
     private final Map<String, CacheRecord> nameMap = new TreeMap<>();
     private final Map<Double, CacheRecord> valueMap = new TreeMap<>();
@@ -84,7 +106,11 @@ public class Cache {
      * @return updated record, or {@code null} if there is no such record.
      */
     public CacheRecord updateAccount(final Long oldAccount, final Long newAccount) {
-        return updateField(accountMap, oldAccount, newAccount);
+        final CacheRecord record = updateField(accountMap, oldAccount, newAccount);
+        if (record != null) {
+            record.account = newAccount;
+        }
+        return record;
     }
 
     /**
@@ -95,7 +121,11 @@ public class Cache {
      * @return updated record, or {@code null} if there is no such record.
      */
     public CacheRecord updateName(final String oldName, final String newName) {
-        return updateField(nameMap, oldName, newName);
+        final CacheRecord record = updateField(nameMap, oldName, newName);
+        if (record != null) {
+            record.name = newName;
+        }
+        return record;
     }
 
     /**
@@ -106,7 +136,11 @@ public class Cache {
      * @return updated record, or {@code null} if there is no such record.
      */
     public CacheRecord updateValue(final Double oldValue, final Double newValue) {
-        return updateField(valueMap, oldValue, newValue);
+        final CacheRecord record = updateField(valueMap, oldValue, newValue);
+        if (record != null) {
+            record.value = newValue;
+        }
+        return record;
     }
 
     /**
