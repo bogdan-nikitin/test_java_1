@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,8 +16,9 @@ class CacheTest {
         return new String(content);
     }
 
-    void testAddRecord(final int records, boolean duplicate) {
-        final Cache cache = new Cache();
+    record RecordData(Long[] accounts, String[] names, Double[] values) {}
+
+    RecordData generateData(final int records) {
         final Long[] accounts = new Long[records];
         final String[] names = new String[records];
         final Double[] values = new Double[records];
@@ -24,31 +26,36 @@ class CacheTest {
             accounts[i] = random.nextLong(0, 1024) * records + i;
             names[i] = STR."\{i}_\{randomString()}";
             values[i] = random.nextDouble(0, 2048) * records + i;
-            cache.addRecord(new Cache.CacheRecord(accounts[i], names[i], values[i]));
         }
+        return new RecordData(accounts, names, values);
+    }
+
+    void testAddRecord(final int records) {
+        final RecordData data = generateData(records);
+        final Cache cache = new Cache();
+        IntStream.range(0, records).forEach(i -> cache.addRecord(new Cache.CacheRecord(data.accounts[i], data.names[i], data.values[i])));
         assertEquals(records, cache.size(), "Invalid size");
         for (int i = 0; i < records; ++i) {
             final Cache.CacheRecord[] recordArray = {
-                    cache.getRecordByAccount(accounts[i]),
-                    cache.getRecordByName(names[i]),
-                    cache.getRecordByValue(values[i])};
+                    cache.getRecordByAccount(data.accounts[i]),
+                    cache.getRecordByName(data.names[i]),
+                    cache.getRecordByValue(data.values[i])};
             for (final Cache.CacheRecord record : recordArray) {
-                assertEquals(accounts[i], record.getAccount(), "Invalid account");
-                assertEquals(names[i], record.getName(), "Invalid name");
-                assertEquals(values[i], record.getValue(), "Invalid value");
+                assertEquals(data.accounts[i], record.getAccount(), "Invalid account");
+                assertEquals(data.names[i], record.getName(), "Invalid name");
+                assertEquals(data.values[i], record.getValue(), "Invalid value");
             }
         }
-        if (!duplicate) {
-            return;
-        }
+    }
+
+    void testAddDuplicate(final int records) {
+        final RecordData data = generateData(records);
+        final Cache cache = new Cache();
+        IntStream.range(0, records).forEach(i -> cache.addRecord(new Cache.CacheRecord(data.accounts[i], data.names[i], data.values[i])));
         for (int i = 0; i < records; ++i) {
-            cache.addRecord(new Cache.CacheRecord(accounts[i], names[i], values[i]));
-        }
-        assertEquals(records, cache.size(), "Duplicate increased size");
-        for (int i = 0; i < records; ++i) {
-            cache.addRecord(new Cache.CacheRecord(accounts[i], randomString(), random.nextDouble()));
-            cache.addRecord(new Cache.CacheRecord(random.nextLong(), names[i], random.nextDouble()));
-            cache.addRecord(new Cache.CacheRecord(random.nextLong(), randomString(), values[i]));
+            cache.addRecord(new Cache.CacheRecord(data.accounts[i], randomString(), random.nextDouble()));
+            cache.addRecord(new Cache.CacheRecord(random.nextLong(), data.names[i], random.nextDouble()));
+            cache.addRecord(new Cache.CacheRecord(random.nextLong(), randomString(), data.values[i]));
         }
         assertEquals(records, cache.size(), "Duplicate increased size");
     }
@@ -69,24 +76,24 @@ class CacheTest {
     @Test
     @DisplayName("Add record with random data to cache")
     void test_addRecord() {
-        testAddRecord(1, false);
+        testAddRecord(1);
     }
 
     @Test
     @DisplayName("Add same record to cache twice")
     void test_addDuplicate() {
-        testAddRecord(1, true);
+        testAddDuplicate(1);
     }
     @Test
     @DisplayName("Add many records with random data to cache")
     void test_addManyRecords() {
-        testAddRecord(1000, false);
+        testAddRecord(1000);
     }
 
     @Test
     @DisplayName("Add many same records to cache")
     void test_addManyDuplicates() {
-        testAddRecord(1000, true);
+        testAddDuplicate(1000);
     }
 
     @Test
