@@ -60,6 +60,31 @@ class CacheTest {
         assertEquals(records, cache.size(), "Duplicate increased size");
     }
 
+    void testUpdate(int records) {
+        final RecordData data = generateData(records);
+        final Cache cache = new Cache();
+        IntStream.range(0, records).forEach(i -> cache.addRecord(new Cache.CacheRecord(data.accounts[i], data.names[i], data.values[i])));
+        for (int i = 0; i < records; ++i) {
+            cache.updateAccount(data.accounts[i], data.accounts[i] + records);
+        }
+        for (int i = 0; i < records; ++i) {
+            assertEquals(data.accounts[i] + records, cache.getRecordByAccount(data.accounts[i] + records).getAccount(), "Invalid account");
+        }
+        for (int i = 0; i < records; ++i) {
+            cache.updateName(data.names[i], STR."prefix\{data.names[i]}");
+        }
+        for (int i = 0; i < records; ++i) {
+            assertEquals(STR."prefix\{data.names[i]}", cache.getRecordByName(STR."prefix\{data.names[i]}").getName(), "Invalid name");
+        }
+        for (int i = 0; i < records; ++i) {
+            cache.updateValue(data.values[i], data.values[i] + records);
+        }
+        for (int i = 0; i < records; ++i) {
+            assertEquals(data.values[i] + records, cache.getRecordByValue(data.values[i] + records).getValue(), "Invalid value");
+        }
+        assertEquals(records, cache.size(), "Size changed");
+    }
+
     @Test
     @DisplayName("Create record with random data")
     void testRecord() {
@@ -67,10 +92,9 @@ class CacheTest {
         final String name = randomString();
         final Double value = random.nextDouble();
         final Cache.CacheRecord record = new Cache.CacheRecord(account, name, value);
-        assertAll(
-                () -> assertEquals(account, record.getAccount(), "Invalid account"),
-                () -> assertEquals(name, record.getName(), "Invalid name"),
-                () -> assertEquals(value, record.getValue(), "Invalid value"));
+        assertEquals(account, record.getAccount(), "Invalid account");
+        assertEquals(name, record.getName(), "Invalid name");
+        assertEquals(value, record.getValue(), "Invalid value");
     }
 
     @Test
@@ -97,8 +121,14 @@ class CacheTest {
     }
 
     @Test
-    @DisplayName("Update record")
+    @DisplayName("Update one record")
     void test_update() {
+        testUpdate(1);
     }
 
+    @Test
+    @DisplayName("Update many records")
+    void test_updateMany() {
+        testUpdate(1000);
+    }
 }
