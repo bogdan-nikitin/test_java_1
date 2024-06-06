@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"db","l":"Cache"},{"p":"db","l":"Cache.CacheRecord"},{"p":"db","l":"Main"}];updateSearchResults();
